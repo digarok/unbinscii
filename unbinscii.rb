@@ -25,12 +25,39 @@ end
 
 
 
+
+
+class Unbinscii
+    def initialize(encoding_chars)
+        @encoding_chars = encoding_chars
+        puts "init #{encoding_chars}"
+    end
+    def decode_prodos_filename(s)
+        len = decode_value(s[0])
+        s[1..len]
+        #puts encoding_chars
+    end
+
+    def encoding_chars
+        @encoding_chars
+    end
+
+    def decode_value(c)
+        encoding_chars.index(c)
+    end
+end
+
+
+
+
+
 header = "FiLeStArTfIlEsTaRt"
 files.each do |file|
     File.open(file, "r") do |f|
     found_header = false
     found_alpha = false
     found_file_head = false
+    ub = false
     line_num = 0
         f.each_line do |line|
             line.strip!
@@ -44,11 +71,13 @@ files.each do |file|
                 puts "Grabbing encoding alphabet: #{line_num}"
                 puts "     \"#{line}\" "
                 found_alpha = true
-                encoding_chars = line.chars
+                ub = Unbinscii.new(line.chars)
+
             elsif !found_file_head
                 puts "Grabbing file header data/metadata: #{line_num}"
                 found_file_head = true
-                filename = line[0..15]
+                filename = ub.decode_prodos_filename(line)
+                # filename = line[0..15]
                 puts "ProDOS Filename: #{filename}"
             end
             line_num += 1
@@ -63,11 +92,5 @@ end
 #        puts line
 #    end
 #end
-
-class Unbinscii
-    def initialize(multipart_payload)
-        @multipart_payload = multipart_payload
-    end
-end
 
 # File.readlines('foo').each do |line|
