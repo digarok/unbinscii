@@ -30,6 +30,7 @@ files.each do |file|
     File.open(file, "r") do |f|
     found_header = false
     found_alpha = false
+    found_file_head = false
     line_num = 0
         f.each_line do |line|
             line.strip!
@@ -41,9 +42,14 @@ files.each do |file|
                 end
             elsif !found_alpha
                 puts "Grabbing encoding alphabet: #{line_num}"
-                puts line
+                puts "     \"#{line}\" "
                 found_alpha = true
                 encoding_chars = line.chars
+            elsif !found_file_head
+                puts "Grabbing file header data/metadata: #{line_num}"
+                found_file_head = true
+                filename = line[0..15]
+                puts "ProDOS Filename: #{filename}"
             end
             line_num += 1
         end
