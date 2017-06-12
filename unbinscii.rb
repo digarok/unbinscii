@@ -1,4 +1,3 @@
-require 'optparse'
 
 ## Usage: unbinscii [-hs] [-o<outputfile>] <infiles>                   ##
 ##                                                                     ##
@@ -18,7 +17,7 @@ ARGV.each do |arg|
         when "-h"
             puts "HRLLLP!"
         end
-    else 
+    else
         puts "File: #{arg}"
         files.push(arg)
     end
@@ -29,10 +28,24 @@ end
 header = "FiLeStArTfIlEsTaRt"
 files.each do |file|
     File.open(file, "r") do |f|
+    found_header = false
+    found_alpha = false
+    line_num = 0
         f.each_line do |line|
-            if line =~ /#{header}/i
+            line.strip!
+            if !found_header
+                puts "Scanning for header: #{line_num}"
+                if line =~ /#{header}/i
+                    found_header = true
+                    puts "Header start: #{line_num}"
+                end
+            elsif !found_alpha
+                puts "Grabbing encoding alphabet: #{line_num}"
                 puts line
+                found_alpha = true
+                encoding_chars = line.chars
             end
+            line_num += 1
         end
     end
 end
@@ -52,4 +65,3 @@ class Unbinscii
 end
 
 # File.readlines('foo').each do |line|
-
