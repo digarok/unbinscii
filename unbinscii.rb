@@ -1,44 +1,21 @@
 
-## Usage: unbinscii [-hs] [-o<outputfile>] <infiles>                   ##
-##                                                                     ##
-##           -h help                                                   ##
-##           -o write to filename instead of the one in binscii file   ##
-##              (only use when output only contains a single file)     ##
-##              contain only one output file.                          ##
-##           -s output to standard output instead of a file            ##
-
+## Copyright 2017 - Dagen Brock
+##
+## Usage: unbinscii [-h]  <infiles>
 
 input_array = ARGV
 puts input_array.to_s
 files = []
 ARGV.each do |arg|
     if arg[0] == "-"
-        #puts "Argument: #{arg}"
         case arg
         when "-h"
             puts "HRLLLP!"
         end
     else
-        #puts "File: #{arg}"
         files.push(arg)
     end
 end
-
-# -
-#   byte filesize[3]; /* Total size of original file */
-#   byte segstart[3]; /* Offset into original file of start of this seg */
-#   byte acmode;      /* ProDOS file access mode */
-#   byte filetype;    /* ProDOS file type */
-#   byte auxtype[2];  /* ProDOS auxiliary file type */
-#   byte storetype;   /* ProDOS file storage type */
-#   byte blksize[2];  /* Number of 512-byte blocks in original file */
-#   byte credate[2];  /* File creation date, in ProDOS 8 format */
-#   byte cretime[2];  /* File creation time, in ProDOS 8 format */
-#   byte moddate[2];  /* File modification date */
-#   byte modtime[2];  /* File modification time */
-#   byte seglen[3];   /* Length in bytes of this segment */
-#   byte crc[2];      /* CRC checksum of preceding fields */
-#   byte filler;      /* Unused filler byte */
 
 class BinsciiHeader
     attr_accessor :filesize, :segment_start, :access_mode, :filetype
@@ -84,7 +61,7 @@ class Unbinscii
 
     def apple_word(s)
         result = 0
-        
+
         # ruby is weird.  multi char slice is array, single char slice is int
         if s.is_a? Numeric
             result = s
@@ -98,10 +75,9 @@ class Unbinscii
         result
     end
 
-    # get four chars and convert back to three byts
+    # get four chars and convert back to three bytes
     def decode_string(s)
         result = []
-        i = 0       #in
         o = 0       #out
         s.scan(/.{1,4}/).each do |quadchars|
             result[o] = ((alphabet.index(quadchars[3]) << 2) | (alphabet.index(quadchars[2]) >> 4)) & 0xFF
@@ -112,26 +88,23 @@ class Unbinscii
             o += 1
         end
         result
-
-#         *out++ = ((alphabet[in[3]] << 2) | (alphabet[in[2]] >> 4)) & 0xFF;
-# *out++ = ((alphabet[in[2]] << 4) | (alphabet[in[1]] >> 2)) & 0xFF;
-# *out++ = ((alphabet[in[1]] << 6) | (alphabet[in[0]]))      & 0xFF;
     end
-
 end
 
 
-
-
-
 header = "FiLeStArTfIlEsTaRt"
+file_bin = []
 files.each do |file|
-    File.open(file, "r") do |f|
-    found_header = false
-    found_alpha = false
-    found_file_head = false
+    bh = false
     ub = false
-    line_num = 0
+    filename = false
+    File.open(file, "r") do |f|
+        found_header = false
+        found_alpha = false
+        found_file_head = false
+        file_done = false
+        line_num = 0
+        segment = []
         f.each_line do |line|
             line.strip!
             if !found_header
@@ -140,6 +113,7 @@ files.each do |file|
                     found_header = true
                     puts "Header start: #{line_num}"
                 end
+
             elsif !found_alpha
                 puts "Grabbing encoding alphabet: #{line_num}"
                 puts "     \"#{line}\" "
@@ -148,7 +122,6 @@ files.each do |file|
 
             elsif !found_file_head
                 puts "Grabbing file header data/metadata: #{line_num}"
-                puts line
                 found_file_head = true
                 filename = ub.decode_prodos_filename(line)
                 # filename = line[0..15]
@@ -156,18 +129,27 @@ files.each do |file|
 
                 bh = BinsciiHeader.new(ub.decode_string(line[16..-1]), ub)
                 puts bh.to_s
+
+            elsif !file_done
+                segment.concat ub.decode_string(line)
+
+                # check max chunk size 12k or >= current segment len
+                if segment.size == 12*1024 || segment.size >= bh.segment_length
+                    puts "MAX SEGMENT LENGTH"
+                    file_done = true
+                    file_bin.concat segment
+                end
+
+                # reached EOF, write file
+                if file_bin.length >= bh.filesize
+                    File.open( filename, 'w' ) do |output|
+                        file_bin[0..bh.filesize-1].each do | byte |
+                            output.print byte.chr
+                        end
+                    end
+                end
             end
             line_num += 1
         end
     end
 end
-
-
-# file testing
-#File.open("binscii.txt", "r") do |f|
-#    f.each_line do |line|
-#        puts line
-#    end
-#end
-
-# File.readlines('foo').each do |line|
