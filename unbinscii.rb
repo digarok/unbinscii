@@ -56,7 +56,7 @@ class Unbinscii
 
     def decode_prodos_filename(s)
         len = alphabet.index(s[0])
-        s[1..len]
+        s[1..len+1]
     end
 
     def apple_word(s)
@@ -131,18 +131,20 @@ files.each do |file|
                 puts bh.to_s
 
             elsif !file_done
+                puts "Decoding line #{line_num}"
                 segment.concat ub.decode_string(line)
-
                 # check max chunk size 12k or >= current segment len
                 if segment.size == 12*1024 || segment.size >= bh.segment_length
-                    puts "MAX SEGMENT LENGTH"
+                    puts "Reached end of segment"
                     file_done = true
                     file_bin.concat segment
                 end
 
-                # reached EOF, write file
+                # reached EOF, write file - it may be padded with 0's at the end
+                # so we need to use the filesize from header to determine length
                 if file_bin.length >= bh.filesize
                     File.open( filename, 'w' ) do |output|
+                        puts "Writing #{filename}"
                         file_bin[0..bh.filesize-1].each do | byte |
                             output.print byte.chr
                         end
