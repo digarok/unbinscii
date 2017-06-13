@@ -27,7 +27,7 @@ It's an old text format we used to use back in the dial-up days to share binary 
 ### Differences
 There are two main differences between binscii and other 6-bit text encoding schemes.
 
-1. It has a defineable alphabet in each segment header.  Though I'm unaware of anyone using this feature, it could work as some sort of "poor man's security", by sending the segments with different alphabets, and using pre-shared alphabets with the sender & recipient as a shared key.  Though this would be mere obfuscation and not really a secure method.
+1. It has a defineable alphabet in each segment header.  Though I'm unaware of anyone using this feature, it could work as some sort of "poor man's security", by sending the segments with different alphabets, and using pre-shared alphabets with the sender & recipient as a secret key.  Though this would be mere obfuscation and not really a secure method.
 
 2. It includes metadata for ProDOS, like the filetype and auxtype, so that decoders could helpfully set the files to the correct type to be seen by the OS after decoding.
 
@@ -45,7 +45,9 @@ There are 3 parts to a binscii file:
 #### Header
 The header is 3 lines starting with a "sentinal" text to tell us where the file starts:
 > FiLeStArTfIlEsTaRt
+
 > ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789()
+
 > MFIBONACCI.TXT  AwlsAAAAAAw4wIAAAAAAAAAAAAAAAADAAA8F
 
 Line 1 has our sentinal, "FiLeStArTfIlEsTaRt"
@@ -86,11 +88,14 @@ It also is not meant to be good code.  This was partly an experiment to see if I
 
 ## Credits
 Based on info here:
+
 https://mirrors.apple2.org.za/apple2.caltech.edu/binscii.txt
+
 https://mirrors.apple2.org.za/ground.icaen.uiowa.edu/Mirrors/uni-kl/doc/binscii.format
 
 ## License
 This project is made available under the MIT License
+
 Copyright (c) 2017 Dagen Brock
 
 For more information see license.txt
