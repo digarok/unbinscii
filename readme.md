@@ -48,11 +48,11 @@ There are 3 parts to a binscii file:
 
 #### Header
 The header is 3 lines starting with a "sentinal" text to tell us where the file starts:
-> FiLeStArTfIlEsTaRt
-
-> ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789()
-
-> MFIBONACCI.TXT  AwlsAAAAAAw4wIAAAAAAAAAAAAAAAADAAA8F
+```
+FiLeStArTfIlEsTaRt
+ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789()
+MFIBONACCI.TXT  AwlsAAAAAAw4wIAAAAAAAAAAAAAAAADAAA8F
+```
 
 Line 1 has our sentinal, "FiLeStArTfIlEsTaRt"
 
@@ -66,10 +66,14 @@ I won't describe the metadata here as it's listed in the doc in the credits belo
 The body is multiple lines of encoded data that are quartets of characters representing triplets of binary data.  
 
 Imagine the bits of three input bytes are as follows:
-> abcdefgh ijklmnop qrstuvwx
+```
+abcdefgh ijklmnop qrstuvwx
+```
 
 Then we get the four output bytes:
-> 00stuvwx 00mnopqr 00ghijkl 00abcdef
+```
+00stuvwx 00mnopqr 00ghijkl 00abcdef
+```
 
 Then each of those bytes, which now have values from 0 - 63, is translated into the character in our alphabet at that index.
 
