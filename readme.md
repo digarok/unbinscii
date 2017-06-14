@@ -22,12 +22,14 @@ Works on single files or multiple file inputs.
 So what is `binscii`?  
 
 ### Ye olde usenet
-It's an old text format we used to use back in the dial-up days to share binary files on message boards & usenet newsgroups, like comp.binaries.apple2.  It is similar to UUencoding and base64, in that it uses 6-bits (so 64 different characters) to represent the data.  The means that it takes 4 character bytes to represent 3 binary bytes, or a 33% increase in file size.  
+It's an old text format we used to use back in the dial up and early academic broadband days to share binary files on message boards & usenet newsgroups, like comp.binaries.apple2.  It is similar to UUencoding and base64 in that it uses 6-bits (allowing up so 64 different characters) to represent the data.  The means that it takes 4 character bytes of binscii to represent 3 binary bytes from the original file, or a 33% increase in file size.  
+
+This is a trade-off we often make for sending data over a different channel.  This still happens with modern emails where it's common to send binary data using MIME with base64 encoding.
 
 ### Differences
 There are two main differences between binscii and other 6-bit text encoding schemes.
 
-1. It has a defineable alphabet in each segment header.  Though I'm unaware of anyone using this feature, it could work as some sort of "poor man's security", by sending the segments with different alphabets, and using pre-shared alphabets with the sender & recipient as a secret key.  Though this would be mere obfuscation and not really a secure method.
+1. It has a defineable alphabet in each segment header.  Though I'm unaware of anyone using this feature, it could work as some sort of "poor man's security", by sending the segments with different alphabets, and using pre-shared alphabets with the sender & recipient as a secret key.  Though this would be mere obfuscation and not really a secure method.  I'm really not sure what this feature was intended for.
 
 2. It includes metadata for ProDOS, like the filetype and auxtype, so that decoders could helpfully set the files to the correct type to be seen by the OS after decoding.
 
@@ -41,6 +43,8 @@ There are 3 parts to a binscii file:
 1. Header
 2. Body
 3. CRC
+
+![](./docs/binscii_file.png)
 
 #### Header
 The header is 3 lines starting with a "sentinal" text to tell us where the file starts:
