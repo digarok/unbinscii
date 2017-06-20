@@ -95,14 +95,14 @@ end
 header = "FiLeStArTfIlEsTaRt"
 file_bin = []
 files.each do |file|
-    bh = false
-    ub = false
-    filename = false
     File.open(file, "r") do |f|
+        bh = false
+        ub = false
+        filename = false
         found_header = false
         found_alpha = false
         found_file_head = false
-        file_done = false
+        segment_done = false
         line_num = 0
         segment = []
         f.each_line do |line|
@@ -130,13 +130,13 @@ files.each do |file|
                 bh = BinsciiHeader.new(ub.decode_string(line[16..-1]), ub)
                 puts bh.to_s
 
-            elsif !file_done
+            elsif !segment_done
                 puts "Decoding line #{line_num}"
                 segment.concat ub.decode_string(line)
                 # check max chunk size 12k or >= current segment len
                 if segment.size == 12*1024 || segment.size >= bh.segment_length
                     puts "Reached end of segment"
-                    file_done = true
+                    segment_done = true
                     file_bin.concat segment
                 end
 
@@ -144,11 +144,24 @@ files.each do |file|
                 # so we need to use the filesize from header to determine length
                 if file_bin.length >= bh.filesize
                     File.open( filename, 'w' ) do |output|
-                        puts "Writing #{filename}"
+                        puts "Writing #{filename} after decoding #{file_bin.length} of #{bh.filesize} bytes"
                         file_bin[0..bh.filesize-1].each do | byte |
                             output.print byte.chr
                         end
                     end
+                end
+
+                if segment_done
+                    # reset all counters/stats as we could have multiple file parts
+                    # in one file, so this allows us to start scanning for next file
+                    bh = false
+                    ub = false
+                    filename = false
+                    segment = []
+                    found_header = false
+                    found_alpha = false
+                    found_file_head = false
+                    segment_done = false
                 end
             end
             line_num += 1

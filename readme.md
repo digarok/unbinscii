@@ -26,6 +26,7 @@ It's an old text format we used to use back in the dial up and early academic br
 
 This is a trade-off we often make for sending data over a different channel.  This still happens with modern emails where it's common to send binary data using MIME with base64 encoding.
 
+
 ### Differences
 There are two main differences between binscii and other 6-bit text encoding schemes.
 
@@ -84,11 +85,20 @@ If the data in the body doesn't have exactly 64 characters (representing 48 byte
 #### CRC
 The last line after reaching the end of a segment body is the CRC.  It is always four characters, representing 3 bytes, a 2-byte CRC value with a zero attached at the end.
 
+
+### Miscellanea
+Binscii files typically have the extentions `.bsc` or `.bsq`
+
+Because text-based encoding schemes like binscii have an overhead of ~33%, it is common practice to compress the file(s) before they are converted to binscii.  Another reason to compress files is to put multiple files in a compressed archive.
+
+This is definitely the case with most binscii files you will find on the Internet.  Indeed, many of them actually contain `.shk` files, which are Apple II `ShrinkIt` archives which can contain files or disk images.  
+
+Unfortunately, this tool isn't intended to deal with ShrinkIt archives, but you can find other utilities out there which can handle these, or transfer the ShrinkIt archive back to a real Apple II (or emulator) and use the ShrinkIt or ShrinkIt GS application to uncompress them.
+
 ### Woops
 This isn't a full implementation.  
 - Doesn't create binscii files (yet). 
 - Can't do out-of-order decoding which is possible via the segment start information.
-- Doesn't support multiple file outputs.
 - Doesn't do anything with ProDOS metadata (integration with disk image tool would be nice, eh?)
 - Doesn't check CRC
 
